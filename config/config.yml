@@ -1,0 +1,27 @@
+application:
+  name: auth
+  ip: 0.0.0.0
+  port: 8080
+  env: dev
+cloud:
+  nacos:
+    enable: true
+    ip: 127.0.0.1
+    port: 8848
+    namespace: public
+    username: nacos
+    password: nacos
+    group: DEFAULT_GROUP
+  zookeeper:
+    enable: false
+    ip: 127.0.0.1
+    port: 2181
+    namespace: public
+    username: zookeeper
+    password: zookeeper
+    group: DEFAULT_GROUP
+redis:
+  enable: true
+  ip: 127.0.0.1
+  port: 6379
+  db: 0
