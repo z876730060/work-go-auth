@@ -1,5 +1,5 @@
 application:
-  name: auth
+  name: work-auth
   ip: 0.0.0.0
   port: 8080
   env: dev
@@ -8,10 +8,10 @@ cloud:
     enable: true
     ip: 127.0.0.1
     port: 8848
-    namespace: public
+    namespace: 7cd8da2f-1861-4c25-8afe-789523b00e14
     username: nacos
     password: nacos
-    group: DEFAULT_GROUP
+    group: work
   zookeeper:
     enable: false
     ip: 127.0.0.1
@@ -25,3 +25,11 @@ redis:
   ip: 127.0.0.1
   port: 6379
   db: 0
+db:
+  enable: true
+  type: postgres
+  ip: 127.0.0.1
+  port: 5432
+  dbname: work
+  username: postgres
+  password: 123456

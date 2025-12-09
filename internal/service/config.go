@@ -8,10 +8,11 @@ type Config struct {
 }
 
 type Application struct {
-	Name string `json:"name"`
-	IP   string `json:"ip"`
-	Port int    `json:"port"`
-	Env  string `json:"env"`
+	Name    string `json:"name"`
+	IP      string `json:"ip"`
+	Port    int    `json:"port"`
+	Env     string `json:"env"`
+	Version string `json:"version"`
 }
 
 type Cloud struct {
@@ -24,7 +25,7 @@ type DB struct {
 	Type     string            `json:"type"`
 	Ip       string            `json:"ip"`
 	Port     int               `json:"port"`
-	DBName   string            `json:"db_name"`
+	DBName   string            `json:"dbname"`
 	Username string            `json:"username"`
 	Password string            `json:"password"`
 	Params   map[string]string `json:"params"`

@@ -6,6 +6,7 @@ require (
 	github.com/gin-contrib/requestid v1.0.5
 	github.com/gin-contrib/sessions v1.0.4
 	github.com/gin-gonic/gin v1.11.0
+	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/nacos-group/nacos-sdk-go/v2 v2.3.5
 	github.com/redis/go-redis/v9 v9.17.2
 	github.com/samuel/go-zookeeper v0.0.0-20201211165307-7117e9ea2414

@@ -4,14 +4,18 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"runtime"
 	"strconv"
 
 	"github.com/gin-contrib/requestid"
-	"github.com/gin-contrib/sessions"
-	sredis "github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
 	"github.com/spf13/viper"
+	"github.com/z876730060/auth/internal/service/common"
+	"github.com/z876730060/auth/internal/service/login"
+	"github.com/z876730060/auth/internal/service/menu"
+	"github.com/z876730060/auth/internal/service/role"
+	"github.com/z876730060/auth/internal/service/user"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 
@@ -39,25 +43,35 @@ func InitDB() {
 		panic("db connect failed: " + err.Error())
 	}
 
+	menu.InitMenuTable(db)
+	role.InitRoleTable(db)
+	user.InitUserTable(db)
 	slog.Info("db connect success")
 }
 
 // InitRoute 初始化路由
 func InitRoute(e *gin.Engine) {
+
+	info := common.Info{
+		Version:   Cfg.Application.Version,
+		GoVersion: runtime.Version(),
+	}
+
 	e.Use(BaseMiddleware(), requestid.New())
-	NewDevtool().Register(e)
 	NewHealthService().Register(e)
-	store, _ := sredis.NewStore(10, "tcp", "localhost:6379", "", "")
-	e.Use(sessions.Sessions("mysession", store))
-	NewAuthService().Register(e)
+	login.NewHandler(slog.Default(), db, info, redisClient).Register(e)
 	e.Use(AuthMiddleware())
 
+	role.NewHandler(slog.Default(), db, info).Register(e)
+	user.NewHandler(slog.Default(), db, redisClient, info).Register(e)
+	menu.NewHandler(slog.Default(), db, info).Register(e)
+	menu.NewMicroAppHandler(slog.Default(), info, db).Register(e)
 	slog.Info("route register success")
 }
 
 func InitConfig() {
 	viper.AddConfigPath("./config")
-	viper.SetConfigType("yml")
+	viper.SetConfigType("yaml")
 	viper.SetConfigName("config")
 	if err := viper.ReadInConfig(); err != nil {
 		panic("read config file failed: " + err.Error())

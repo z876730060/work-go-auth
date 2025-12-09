@@ -33,7 +33,7 @@ func (n *Nacos) Register(cfg service.Config) error {
 	}
 	_, err = client.RegisterInstance(vo.RegisterInstanceParam{
 		Ip:          cfg.Application.IP,
-		Port:        uint64(cfg.Cloud.Nacos.Port),
+		Port:        uint64(cfg.Application.Port),
 		ServiceName: cfg.Application.Name,
 		Weight:      1,
 		Enable:      true,
