@@ -12,13 +12,13 @@ import (
 	"github.com/z876730060/auth/internal/service/user"
 )
 
-func AuthMiddleware() gin.HandlerFunc {
+func AuthMiddleware(l *slog.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		header := c.GetHeader("Authorization")
 		if header == "" {
 			c.AbortWithStatus(http.StatusUnauthorized)
 		}
-		slog.Info("Authorization", "header", header)
+		l.Info("Authorization", "header", header)
 
 		token := strings.TrimPrefix(header, "Bearer ")
 		claims, err := common.ValidateJavaJWT(token)
@@ -26,7 +26,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
-		slog.Info("Authorization", "claims", claims)
+		l.Info("Authorization", "claims", claims)
 
 		var userRole []user.UserRole
 		db.Model(&user.UserRole{}).Where("user_id = ?", claims.UserID).Find(&userRole)
@@ -46,23 +46,23 @@ func AuthMiddleware() gin.HandlerFunc {
 	}
 }
 
-func BaseMiddleware() gin.HandlerFunc {
+func BaseMiddleware(l *slog.Logger) gin.HandlerFunc {
 	total := atomic.Int64{}
 	count := atomic.Int64{}
 	return func(c *gin.Context) {
 		defer func() {
 			if err := recover(); err != nil {
-				slog.Error("recover from panic", "err", err)
+				l.Error("recover from panic", "err", err)
 			}
 		}()
 		start := time.Now()
 		defer func() {
-			slog.Info("request duration", "path", c.Request.URL.Path, "method", c.Request.Method, "status", c.Writer.Status(), "duration", time.Since(start))
+			l.Info("request duration", "path", c.Request.URL.Path, "method", c.Request.Method, "status", c.Writer.Status(), "duration", time.Since(start))
 		}()
 		total.Add(1)
 		count.Add(1)
 		defer count.Add(-1)
-		slog.Info("request count", "total", total.Load(), "current", count.Load())
+		l.Info("request count", "total", total.Load(), "current", count.Load())
 		c.Next()
 	}
 }

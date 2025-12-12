@@ -25,52 +25,52 @@ func NewHandler(l *slog.Logger, db *gorm.DB, info common.Info) *Handler {
 	return &Handler{l: l, db: db, info: info}
 }
 
-func (handler *Handler) Register(e *gin.Engine) {
-	e.GET("/menu", handler.GetMenu)
-	e.GET("/route", handler.GetRoute)
-	e.POST("/menu/list", handler.List)
-	e.POST("/menu", handler.Add)
-	e.DELETE("/menu/:id", handler.Del)
-	e.GET("/breadcrumb", handler.GetBreadcrumb)
-	e.GET("/menu/:id", handler.GetDetail)
-	e.PUT("/menu", handler.Update)
-	e.GET("/menu/tree", handler.GetTree)
+func (h *Handler) Register(e *gin.Engine) {
+	e.GET("/menu", h.GetMenu)
+	e.GET("/route", h.GetRoute)
+	e.POST("/menu/list", h.List)
+	e.POST("/menu", h.Add)
+	e.DELETE("/menu/:id", h.Del)
+	e.GET("/breadcrumb", h.GetBreadcrumb)
+	e.GET("/menu/:id", h.GetDetail)
+	e.PUT("/menu", h.Update)
+	e.GET("/menu/tree", h.GetTree)
 }
 
-func (handler *Handler) GetMenu(c *gin.Context) {
+func (h *Handler) GetMenu(c *gin.Context) {
 	roleIDs := c.GetUintSlice("role")
 	if len(roleIDs) == 0 {
-		c.JSON(http.StatusBadRequest, common.RespErr("role is empty", handler.info))
+		c.JSON(http.StatusBadRequest, common.RespErr("role is empty", h.info))
 		return
 	}
-	handler.l.Info("", "roleIDs", roleIDs)
+	h.l.Info("", "roleIDs", roleIDs)
 
 	appId := c.GetHeader("MicroAppId")
 
 	datas := make([]menu.Menu, 0)
-	handler.l.Info("db is running\n")
+	h.l.Info("db is running\n")
 	var data []MenuTable
 	if slices.Contains(roleIDs, 1) {
-		handler.l.Info("admin role")
-		query := handler.db
+		h.l.Info("admin role")
+		query := h.db
 		if appId != "" {
 			query = query.Where("parent_key = (?) and other = true",
-				handler.db.Model(&MenuTable{}).Where("micro_app = ? and parent_key = ?", appId, "").Pluck("key", nil),
+				h.db.Model(&MenuTable{}).Where("micro_app = ? and parent_key = ?", appId, "").Pluck("key", nil),
 			)
 		} else {
 			query = query.Where("parent_key = ?", "")
 		}
 		query.Order("order_id, ID").Find(&data)
 	} else {
-		query := handler.db
+		query := h.db
 		if appId != "" {
 			query = query.Where("parent_key = (?) and key IN (?) and other = true",
-				handler.db.Model(&MenuTable{}).Where("micro_app = ? and parent_key = ?", appId, "").Pluck("key", nil),
-				handler.db.Model(&role.RoleMenu{}).Where("rid IN ?", roleIDs).Pluck("menu_key", nil),
+				h.db.Model(&MenuTable{}).Where("micro_app = ? and parent_key = ?", appId, "").Pluck("key", nil),
+				h.db.Model(&role.RoleMenu{}).Where("rid IN ?", roleIDs).Pluck("menu_key", nil),
 			)
 		} else {
 			query = query.Where("parent_key = (?) and key IN (?)", "",
-				handler.db.Model(&role.RoleMenu{}).Where("rid IN ?", roleIDs).Pluck("menu_key", nil),
+				h.db.Model(&role.RoleMenu{}).Where("rid IN ?", roleIDs).Pluck("menu_key", nil),
 			)
 		}
 		query.Order("order_id, ID").Find(&data)
@@ -80,33 +80,33 @@ func (handler *Handler) GetMenu(c *gin.Context) {
 		datas = append(datas, item.Menu)
 	}
 
-	c.JSON(http.StatusOK, common.RespOk("get menu success", datas, handler.info))
+	c.JSON(http.StatusOK, common.RespOk("get menu success", datas, h.info))
 }
 
-func (handler *Handler) GetRoute(c *gin.Context) {
+func (h *Handler) GetRoute(c *gin.Context) {
 	roleIDs := c.GetUintSlice("role")
 	if len(roleIDs) == 0 {
-		c.JSON(http.StatusBadRequest, common.RespErr("role is empty", handler.info))
+		c.JSON(http.StatusBadRequest, common.RespErr("role is empty", h.info))
 		return
 	}
-	handler.l.Info("", "roleIDs: ", roleIDs)
+	h.l.Info("", "roleIDs: ", roleIDs)
 
 	microAppId := c.GetHeader("MicroAppId")
 
 	var data []MenuTable
 
 	if slices.Contains(roleIDs, 1) {
-		handler.l.Info("admin role")
-		handler.db.Find(&data)
+		h.l.Info("admin role")
+		h.db.Find(&data)
 	} else {
-		query := handler.db
+		query := h.db
 		if microAppId != "" {
 			query = query.Where("key IN (?) and other = true",
-				handler.db.Model(&role.RoleMenu{}).Where("rid IN ?", roleIDs).Pluck("menu_key", nil),
+				h.db.Model(&role.RoleMenu{}).Where("rid IN ?", roleIDs).Pluck("menu_key", nil),
 			)
 		} else {
 			query = query.Where("key IN (?)",
-				handler.db.Model(&role.RoleMenu{}).Where("rid IN ?", roleIDs).Pluck("menu_key", nil),
+				h.db.Model(&role.RoleMenu{}).Where("rid IN ?", roleIDs).Pluck("menu_key", nil),
 			)
 		}
 		query.Find(&data)
@@ -117,7 +117,7 @@ func (handler *Handler) GetRoute(c *gin.Context) {
 		datas[i] = item.Route
 	}
 
-	c.JSON(http.StatusOK, common.RespOk("get route success", datas, handler.info))
+	c.JSON(http.StatusOK, common.RespOk("get route success", datas, h.info))
 }
 
 func (h *Handler) List(c *gin.Context) {

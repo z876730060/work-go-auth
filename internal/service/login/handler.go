@@ -8,11 +8,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
+	"github.com/steambap/captcha"
 	"github.com/z876730060/auth/internal/service/common"
 	"github.com/z876730060/auth/internal/service/user"
 	"gorm.io/gorm"
 )
 
+// Handler login处理器
 type Handler struct {
 	db          *gorm.DB
 	l           *slog.Logger
@@ -26,8 +28,10 @@ func NewHandler(l *slog.Logger, db *gorm.DB, info common.Info, redisClient *redi
 
 func (h *Handler) Register(e *gin.Engine) {
 	e.POST("/login", h.Login)
+	e.GET("/captcha", h.Captcha)
 }
 
+// Login 登录
 func (h *Handler) Login(c *gin.Context) {
 	var req LoginReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -67,4 +71,14 @@ func (h *Handler) Login(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, common.RespOk("login success", token, h.info))
+}
+
+// Captcha 获取验证码
+func (h *Handler) Captcha(c *gin.Context) {
+	data, err := captcha.New(150, 50)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, common.RespErr(err.Error(), h.info))
+		return
+	}
+	data.WriteImage(c.Writer)
 }

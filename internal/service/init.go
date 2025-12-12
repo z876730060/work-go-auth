@@ -23,12 +23,17 @@ import (
 	"gorm.io/gorm/logger"
 )
 
+const (
+	HANDLER = "handler"
+)
+
 var (
 	db          *gorm.DB
 	Cfg         Config
 	redisClient *redis.Client
 )
 
+// InitDB 初始化数据库
 func InitDB() {
 	if !Cfg.DB.Enable {
 		return
@@ -57,18 +62,23 @@ func InitRoute(e *gin.Engine) {
 		GoVersion: runtime.Version(),
 	}
 
-	e.Use(BaseMiddleware(), requestid.New())
-	NewHealthService().Register(e)
-	login.NewHandler(slog.Default(), db, info, redisClient).Register(e)
-	e.Use(AuthMiddleware())
+	l := slog.Default().With("service", "auth")
 
-	role.NewHandler(slog.Default(), db, info).Register(e)
-	user.NewHandler(slog.Default(), db, redisClient, info).Register(e)
-	menu.NewHandler(slog.Default(), db, info).Register(e)
-	menu.NewMicroAppHandler(slog.Default(), info, db).Register(e)
+	e.Use(BaseMiddleware(l.With(HANDLER, "baseMiddleware")), requestid.New())
+	NewTestHandler(l.With(HANDLER, "testHandler"), redisClient, info).Register(e)
+	NewHealthService().Register(e)
+	NewPprofHandler(l.With(HANDLER, "pprofHandler")).Register(e)
+	login.NewHandler(l.With(HANDLER, "loginHandler"), db, info, redisClient).Register(e)
+	e.Use(AuthMiddleware(l.With(HANDLER, "authMiddleware")))
+
+	role.NewHandler(l.With(HANDLER, "roleHandler"), db, info).Register(e)
+	user.NewHandler(l.With(HANDLER, "userHandler"), db, redisClient, info).Register(e)
+	menu.NewHandler(l.With(HANDLER, "menuHandler"), db, info).Register(e)
+	menu.NewMicroAppHandler(l.With(HANDLER, "microAppHandler"), info, db).Register(e)
 	slog.Info("route register success")
 }
 
+// InitConfig 初始化配置
 func InitConfig() {
 	viper.AddConfigPath("./config")
 	viper.SetConfigType("yaml")
@@ -82,6 +92,7 @@ func InitConfig() {
 	slog.Info("config load success", "path", viper.ConfigFileUsed())
 }
 
+// InitRedis 初始化缓存
 func InitRedis() {
 	if !Cfg.Redis.Enable {
 		return
@@ -99,6 +110,7 @@ func InitRedis() {
 	slog.Info("redis connect success")
 }
 
+// getDialector 获取数据源
 func getDialector() gorm.Dialector {
 	switch Cfg.DB.Type {
 	case "mysql":
