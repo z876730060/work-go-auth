@@ -1,7 +1,6 @@
 package common
 
 import (
-	"crypto/md5"
 	"fmt"
 	"math"
 	"net/http"
@@ -48,10 +47,6 @@ func RespErr(message string, info any) map[string]any {
 		"message": message,
 		"info":    info,
 	}
-}
-
-func EncryptPassword(password string) string {
-	return fmt.Sprintf("%x", md5.Sum([]byte(password)))
 }
 
 type CompatibleClaims struct {
