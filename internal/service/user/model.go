@@ -11,6 +11,7 @@ type User struct {
 	Fullname string `json:"fullname"`
 	Email    string `json:"email"`
 	Phone    string `json:"phone"`
+	Pic      string `json:"pic"`
 }
 
 func (u *User) TableName() string {
