@@ -6,7 +6,8 @@ import (
 
 type Role struct {
 	gorm.Model
-	Name string `json:"name" gorm:"unique not null"`
+	Name    string `json:"name" gorm:"unique not null"`
+	Comment string `json:"comment" gorm:"not null"`
 }
 
 type RoleMenu struct {
@@ -40,7 +41,8 @@ func InitRoleTable(db *gorm.DB) {
 	}
 
 	db.Create(&Role{
-		Name: "admin",
+		Name:    "admin",
+		Comment: "平台内最大权限",
 	})
 	db.Create(&Role{
 		Name: "user",

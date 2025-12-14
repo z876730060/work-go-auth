@@ -143,6 +143,7 @@ func (h *Handler) Update(c *gin.Context) {
 	type rBody struct {
 		ID             string   `json:"ID"`
 		Name           string   `json:"name"`
+		Comment        string   `json:"comment"`
 		MenuPermission []string `json:"menuPermission"`
 	}
 	var req rBody
@@ -162,7 +163,8 @@ func (h *Handler) Update(c *gin.Context) {
 		Model: gorm.Model{
 			ID: uid,
 		},
-		Name: req.Name,
+		Name:    req.Name,
+		Comment: req.Comment,
 	}
 	if err := h.db.Save(&role).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, common.RespErr(err.Error(), h.info))
