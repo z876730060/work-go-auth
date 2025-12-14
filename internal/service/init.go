@@ -65,7 +65,6 @@ func InitRoute(e *gin.Engine) {
 	l := slog.Default().With("service", "auth")
 
 	e.Use(BaseMiddleware(l.With(HANDLER, "baseMiddleware")), requestid.New())
-	NewTestHandler(l.With(HANDLER, "testHandler"), redisClient, info).Register(e)
 	NewHealthService().Register(e)
 	NewPprofHandler(l.With(HANDLER, "pprofHandler")).Register(e)
 	login.NewHandler(l.With(HANDLER, "loginHandler"), db, info, redisClient).Register(e)
