@@ -4,6 +4,7 @@ type Menu struct {
 	Key       string `json:"key"`
 	Label     string `json:"label"`
 	ParentKey string `json:"parentKey"`
+	Hidden    bool   `json:"hidden"`
 }
 
 type Route struct {

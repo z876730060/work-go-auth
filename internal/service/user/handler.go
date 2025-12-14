@@ -31,6 +31,7 @@ func (h *Handler) Register(e *gin.Engine) {
 	e.PUT("/user", h.Update)
 	e.POST("/user/role", h.BindRole)
 	e.GET("/user/role/:id", h.GetRole)
+	e.GET("/user/me", h.Me)
 }
 
 func (h *Handler) List(c *gin.Context) {
@@ -245,4 +246,8 @@ func (h *Handler) GetRole(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, common.RespOk("get role success", roleKeys, h.info))
+}
+
+func (h *Handler) Me(c *gin.Context) {
+
 }

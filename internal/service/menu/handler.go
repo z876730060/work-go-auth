@@ -54,22 +54,22 @@ func (h *Handler) GetMenu(c *gin.Context) {
 		h.l.Info("admin role")
 		query := h.db
 		if appId != "" {
-			query = query.Where("parent_key = (?) and other = true",
+			query = query.Where("parent_key = (?) and other = true and (hidden = false or hidden is null)",
 				h.db.Model(&MenuTable{}).Where("micro_app = ? and parent_key = ?", appId, "").Pluck("key", nil),
 			)
 		} else {
-			query = query.Where("parent_key = ?", "")
+			query = query.Where("parent_key = ? and (hidden = false or hidden is null)", "")
 		}
 		query.Order("order_id, ID").Find(&data)
 	} else {
 		query := h.db
 		if appId != "" {
-			query = query.Where("parent_key = (?) and key IN (?) and other = true",
+			query = query.Where("parent_key = (?) and key IN (?) and other = true and (hidden = false or hidden is null)",
 				h.db.Model(&MenuTable{}).Where("micro_app = ? and parent_key = ?", appId, "").Pluck("key", nil),
 				h.db.Model(&role.RoleMenu{}).Where("rid IN ?", roleIDs).Pluck("menu_key", nil),
 			)
 		} else {
-			query = query.Where("parent_key = (?) and key IN (?)", "",
+			query = query.Where("parent_key = (?) and key IN (?) and (hidden = false or hidden is null)", "",
 				h.db.Model(&role.RoleMenu{}).Where("rid IN ?", roleIDs).Pluck("menu_key", nil),
 			)
 		}
