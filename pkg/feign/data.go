@@ -2,14 +2,21 @@ package feign
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 	"time"
 )
 
 const WorkData = "work-data"
 
+var (
+	DataServiceInstance = DataService{
+		log: slog.Default().With("service", WorkData),
+	}
+)
+
 func init() {
-	fClients.Register(WorkData)
+	FeignClients.register(WorkData)
 }
 
 type News struct {
@@ -23,13 +30,17 @@ type News struct {
 	Content   string    `json:"content"`
 }
 
-func GetNew(id int) (*News, error) {
+type DataService struct {
+	log *slog.Logger
+}
+
+func (d DataService) GetNew(id int) (map[string]any, error) {
 	request, err := http.NewRequest(http.MethodGet, fmt.Sprintf("/one/%d", id), nil)
 	if err != nil {
 		return nil, err
 	}
-
-	t, err := do[*News](request, WorkData)
+	d.log.Info("get news request", "id", id)
+	t, err := do[map[string]any](request, WorkData)
 	if err != nil {
 		return nil, err
 	}

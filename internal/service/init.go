@@ -64,7 +64,7 @@ func InitRoute(e *gin.Engine) {
 	baseHandler := common.NewBaseHandler(l, db, redisClient, info)
 
 	e.Use(BaseMiddleware(l), requestid.New())
-	NewHealthService().Register(e)
+	NewHealthService(l).Register(e)
 	NewPprofHandler(l).Register(e)
 	login.NewHandler(baseHandler).Register(e)
 	e.Use(AuthMiddleware(l))

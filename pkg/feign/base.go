@@ -15,7 +15,7 @@ type R[T any] struct {
 }
 
 func do[T any](request *http.Request, key string) (t T, err error) {
-	instance, err := fClients.Get(key)
+	instance, err := FeignClients.get(key)
 	if err != nil {
 		return t, err
 	}
@@ -29,6 +29,10 @@ func do[T any](request *http.Request, key string) (t T, err error) {
 		return t, err
 	}
 	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		return t, fmt.Errorf("status code not ok, status: %s", response.Status)
+	}
 
 	all, err := io.ReadAll(response.Body)
 	if err != nil {

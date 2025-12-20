@@ -7,9 +7,8 @@ import (
 )
 
 var (
-	fClients               = NewClientManager()
-	ServiceDiscoverManager = NewDiscoverManager()
-	httpClient             = http.DefaultClient
+	FeignClients = NewClientManager()
+	httpClient   = http.DefaultClient
 )
 
 type DiscoverInstance struct {
@@ -19,36 +18,38 @@ type DiscoverInstance struct {
 	ServiceName string `json:"serviceName"`
 }
 
-type DiscoverManager struct {
-	discoverMap map[string][]DiscoverInstance
-	mux         sync.Mutex
-}
-
-func NewDiscoverManager() *DiscoverManager {
-	return &DiscoverManager{
-		discoverMap: make(map[string][]DiscoverInstance),
-	}
-}
-
-func (d *DiscoverManager) Discover(i interface{}) {
-	//TODO 先处理DiscoverManager的数据
-
-	//TODO 再去处理FClient的数据
-}
-
 type ClientManager struct {
 	clientMap      map[string]DiscoverInstance
 	registerClient map[string]bool
 	mux            sync.Mutex
 }
 
-func (c *ClientManager) Register(s string) {
+func (c *ClientManager) NeedDiscover(serviceName string) bool {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+	_, ok := c.registerClient[serviceName]
+	return ok
+}
+
+func (c *ClientManager) Clear() {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+	clear(c.clientMap)
+}
+
+func (c *ClientManager) Register(instance DiscoverInstance) {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+	c.clientMap[instance.ServiceName] = instance
+}
+
+func (c *ClientManager) register(s string) {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	c.registerClient[s] = true
 }
 
-func (c *ClientManager) Get(s string) (discoverInstance DiscoverInstance, err error) {
+func (c *ClientManager) get(s string) (discoverInstance DiscoverInstance, err error) {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	var ok bool
@@ -67,8 +68,10 @@ func NewClientManager() *ClientManager {
 }
 
 type FeignClient interface {
-	Register(string)
-	Get(string) (http.Client, error)
+	register(string)
+	get(string) (http.Client, error)
+	Register(DiscoverInstance)
+	NeedDiscover(string) bool
 }
 
 type Discover interface {
