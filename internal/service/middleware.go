@@ -13,6 +13,7 @@ import (
 )
 
 func AuthMiddleware(l *slog.Logger) gin.HandlerFunc {
+	l = l.With(common.HANDLER, "authMiddleware")
 	return func(c *gin.Context) {
 		header := c.GetHeader("Authorization")
 		if header == "" {
@@ -47,6 +48,7 @@ func AuthMiddleware(l *slog.Logger) gin.HandlerFunc {
 }
 
 func BaseMiddleware(l *slog.Logger) gin.HandlerFunc {
+	l = l.With(common.HANDLER, "baseMiddleware")
 	total := atomic.Int64{}
 	count := atomic.Int64{}
 	return func(c *gin.Context) {

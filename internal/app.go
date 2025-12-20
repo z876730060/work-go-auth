@@ -34,7 +34,7 @@ func (a *App) Run() {
 	cloud.RegisterManagerInstance.Register(service.Cfg)
 	defer cloud.RegisterManagerInstance.Unregister(service.Cfg)
 
-	slog.Info("app start, listen on " + addr)
+	slog.Info("app start success", "listen on", addr)
 	exit := make(chan os.Signal, 1)
 	signal.Notify(exit, os.Interrupt)
 	<-exit

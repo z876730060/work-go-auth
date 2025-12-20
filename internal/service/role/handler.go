@@ -26,11 +26,11 @@ func (h *Handler) Register(e *gin.Engine) {
 	e.GET("/role/tree", h.GetTree)
 }
 
-func NewHandler(l *slog.Logger, db *gorm.DB, info common.Info) *Handler {
+func NewHandler(baseHandler common.BaseHandler) *Handler {
 	return &Handler{
-		l:    l,
-		info: info,
-		db:   db,
+		l:    baseHandler.Log.With(common.HANDLER, "roleHandler"),
+		info: baseHandler.Info,
+		db:   baseHandler.DB,
 	}
 }
 
@@ -80,7 +80,7 @@ func (h *Handler) Add(c *gin.Context) {
 		}
 	}
 
-	h.l.Info("Add role: %+v", role)
+	h.l.Info("Add role", "role", role)
 
 	// 然后创建角色菜单关系
 	for _, menuKey := range req.MenuPermission {

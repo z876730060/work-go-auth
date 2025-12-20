@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/z876730060/auth/internal/service/common"
 )
 
 type pprofHandler struct {
@@ -13,7 +14,7 @@ type pprofHandler struct {
 }
 
 func NewPprofHandler(l *slog.Logger) *pprofHandler {
-	return &pprofHandler{l: l}
+	return &pprofHandler{l: l.With(common.HANDLER, "pprofHandler")}
 }
 
 func (h *pprofHandler) Register(e *gin.Engine) {

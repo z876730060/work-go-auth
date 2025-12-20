@@ -26,7 +26,7 @@ func (m *MenuTable) TableName() string {
 type MicroApp struct {
 	gorm.Model
 	Name    string `json:"name"`
-	Key     string `json:"key"`
+	Key     string `json:"key" gorm:"uniqueIndex"`
 	BaseUrl string `json:"baseUrl"`
 }
 

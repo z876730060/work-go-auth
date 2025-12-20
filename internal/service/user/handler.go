@@ -19,8 +19,13 @@ type Handler struct {
 	info        common.Info
 }
 
-func NewHandler(l *slog.Logger, db *gorm.DB, redisClient *redis.Client, info common.Info) *Handler {
-	return &Handler{l: l, db: db, redisClient: redisClient, info: info}
+func NewHandler(baseHandler common.BaseHandler) *Handler {
+	return &Handler{
+		l:           baseHandler.Log.With(common.HANDLER, "userHandler"),
+		db:          baseHandler.DB,
+		redisClient: baseHandler.RedisClient,
+		info:        baseHandler.Info,
+	}
 }
 
 func (h *Handler) Register(e *gin.Engine) {
@@ -50,7 +55,7 @@ func (h *Handler) List(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	h.l.Info("reqBody: %+v", rbody)
+	h.l.Info("", "reqBody", rbody)
 
 	var datas []User
 	var count int64
@@ -110,7 +115,7 @@ func (h *Handler) Add(c *gin.Context) {
 		}
 	}
 
-	h.l.Info("Add user: %+v", user)
+	h.l.Info("Add user", "user", user)
 
 	c.JSON(http.StatusOK, common.RespOk("create user success", nil, h.info))
 }
@@ -139,7 +144,7 @@ func (h *Handler) Update(c *gin.Context) {
 		return
 	}
 
-	h.l.Info("Update user: %+v", user)
+	h.l.Info("Update user", "user", user)
 
 	// 校验用户名是否存在
 	var count int64
@@ -197,7 +202,7 @@ func (h *Handler) BindRole(c *gin.Context) {
 		return
 	}
 
-	h.l.Info("BindRole reqBody: %+v", reqBody)
+	h.l.Info("BindRole reqBody", "reqBody", reqBody)
 	tx := h.db.Begin()
 	defer tx.Rollback()
 

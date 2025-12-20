@@ -22,8 +22,13 @@ type Handler struct {
 	info        common.Info
 }
 
-func NewHandler(l *slog.Logger, db *gorm.DB, info common.Info, redisClient *redis.Client) *Handler {
-	return &Handler{db: db, l: l, redisClient: redisClient, info: info}
+func NewHandler(baseHandler common.BaseHandler) *Handler {
+	return &Handler{
+		db:          baseHandler.DB,
+		l:           baseHandler.Log.With(slog.String(common.HANDLER, "loginHandler")),
+		redisClient: baseHandler.RedisClient,
+		info:        baseHandler.Info,
+	}
 }
 
 func (h *Handler) Register(e *gin.Engine) {

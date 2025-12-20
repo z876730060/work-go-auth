@@ -21,8 +21,12 @@ type Handler struct {
 	info common.Info
 }
 
-func NewHandler(l *slog.Logger, db *gorm.DB, info common.Info) *Handler {
-	return &Handler{l: l, db: db, info: info}
+func NewHandler(baseHandler common.BaseHandler) *Handler {
+	return &Handler{
+		l:    baseHandler.Log.With(common.HANDLER, "menuHandler"),
+		db:   baseHandler.DB,
+		info: baseHandler.Info,
+	}
 }
 
 func (h *Handler) Register(e *gin.Engine) {
@@ -136,7 +140,7 @@ func (h *Handler) List(c *gin.Context) {
 		return
 	}
 
-	h.l.Info("List menu: %v", body)
+	h.l.Info("List menu", "body", body)
 
 	var data []MenuTable
 	query := h.db.Model(&MenuTable{})
@@ -205,7 +209,7 @@ func (h *Handler) Add(c *gin.Context) {
 		return
 	}
 
-	h.l.Info("Add menu id: %v", menuTable.ID)
+	h.l.Info("Add menu", "id", menuTable.ID)
 
 	c.JSON(http.StatusOK, common.RespOk("add menu success", menuTable.Menu, h.info))
 }
@@ -224,7 +228,7 @@ func (h *Handler) Del(c *gin.Context) {
 		return
 	}
 
-	h.l.Info("Del menu id: %v", uid)
+	h.l.Info("Del menu", "id", uid)
 
 	c.JSON(http.StatusOK, common.RespOk("del menu success", nil, h.info))
 }
@@ -366,11 +370,11 @@ func (h *MicroAppHandler) Register(e *gin.Engine) {
 	e.GET("/micro-app/key/:key", h.GetDetailByKey)
 }
 
-func NewMicroAppHandler(l *slog.Logger, info common.Info, db *gorm.DB) *MicroAppHandler {
+func NewMicroAppHandler(baseHandler common.BaseHandler) *MicroAppHandler {
 	return &MicroAppHandler{
-		db:   db,
-		l:    l,
-		info: info,
+		db:   baseHandler.DB,
+		l:    baseHandler.Log.With(common.HANDLER, "microAppHandler"),
+		info: baseHandler.Info,
 	}
 }
 
