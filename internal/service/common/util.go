@@ -52,19 +52,21 @@ func RespErr(message string, info any) map[string]any {
 type CompatibleClaims struct {
 	UserID   uint     `json:"userId"`
 	Username string   `json:"username"`
-	Roles    []string `json:"roles"`
+	RoleIds  []uint `json:"roleIds"`
+	RoleKeys []string `json:"roleKeys"`
 	jwt.RegisteredClaims
 }
 
 // 生成与 Java 兼容的 JWT
-func GenerateCompatibleToken(userID uint, username string, roles []string) (string, error) {
+func GenerateCompatibleToken(userID uint, username string, roleIds []uint, roleKeys []string) (string, error) {
 	// 确保密钥长度
 	secretKey := ensureKeyLength(JWTSecret)
 
 	claims := CompatibleClaims{
 		UserID:   userID,
 		Username: username,
-		Roles:    roles,
+		RoleIds:  roleIds,
+		RoleKeys: roleKeys,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    "my-app",                               // 必须与 Java 一致
 			Subject:   strconv.FormatUint(uint64(userID), 10), // 必须设置

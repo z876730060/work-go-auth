@@ -10,8 +10,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/z876730060/auth/internal/service/common"
-	"github.com/z876730060/auth/internal/service/role"
-	"github.com/z876730060/auth/internal/service/user"
 	"gorm.io/gorm"
 )
 
@@ -32,18 +30,9 @@ func AuthMiddleware(l *slog.Logger, db *gorm.DB) gin.HandlerFunc {
 		}
 		l.Info("Authorization", "claims", claims)
 
-		var roles []role.Role
-		db.Model(&role.Role{}).Where("ID in (?)", db.Model(&user.UserRole{}).Select("role_id").Where("user_id = ?", claims.UserID)).Find(&roles)
-		roleIds := make([]uint, 0)
-		roleKeys := make([]string, 0)
-		for _, role := range roles {
-			roleIds = append(roleIds, role.ID)
-			roleKeys = append(roleKeys, role.Key)
-		}
-
 		c.Set("userId", claims.UserID)
-		c.Set("role", roleIds)
-		c.Set("roleKeys", roleKeys)
+		c.Set("role", claims.RoleIds)
+		c.Set("roleKeys", claims.RoleKeys)
 		c.Set("username", claims.Username)
 		// TODO: 验证 Authorization header 是否有效
 		// 例如，检查是否包含有效的 token 或其他验证逻辑

@@ -10,6 +10,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/steambap/captcha"
 	"github.com/z876730060/auth/internal/service/common"
+	"github.com/z876730060/auth/internal/service/role"
 	"github.com/z876730060/auth/internal/service/user"
 	"gorm.io/gorm"
 )
@@ -62,8 +63,19 @@ func (h *Handler) Login(c *gin.Context) {
 		return
 	}
 
+	var roles []role.Role
+	h.db.Model(&role.Role{}).Where("ID in (?)", h.db.Model(&user.UserRole{}).Select("role_id").Where("user_id = ?", u.ID)).Find(&roles)
+	roleIds := make([]uint, 0)
+	roleKeys := make([]string, 0)
+	for _, role := range roles {
+		roleIds = append(roleIds, role.ID)
+		roleKeys = append(roleKeys, role.Key)
+	}
+
+	h.l.Info("user login", "username", u.Username, "roleIds", roleIds, "roleKeys", roleKeys)
+
 	// 生成JWT token
-	token, err := common.GenerateCompatibleToken(u.ID, u.Username, []string{})
+	token, err := common.GenerateCompatibleToken(u.ID, u.Username, roleIds, roleKeys)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, common.RespErr(err.Error(), h.info))
 		return
