@@ -7,6 +7,7 @@ import (
 type Role struct {
 	gorm.Model
 	Name    string `json:"name" gorm:"unique not null"`
+	Key     string `json:"key" gorm:"unique not null"`
 	Comment string `json:"comment" gorm:"not null"`
 }
 
@@ -42,9 +43,11 @@ func InitRoleTable(db *gorm.DB) {
 
 	db.Create(&Role{
 		Name:    "admin",
+		Key:     "admin",
 		Comment: "平台内最大权限",
 	})
 	db.Create(&Role{
 		Name: "user",
+		Key:  "user",
 	})
 }

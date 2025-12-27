@@ -18,7 +18,12 @@ func NewPprofHandler(l *slog.Logger) *pprofHandler {
 }
 
 func (h *pprofHandler) Register(e *gin.Engine) {
-	e.GET("/debug/pprof/*urlPath", h.ServeHTTP)
+	if !Cfg.Application.Debug.Enable {
+		return
+	}
+	h.l.Info("Register pprof handler", "username", Cfg.Application.Debug.Username)
+	// 只有管理员的角色才可以访问
+	e.GET("/debug/pprof/*urlPath", gin.BasicAuth(gin.Accounts{Cfg.Application.Debug.Username: Cfg.Application.Debug.Password}), h.ServeHTTP)
 }
 
 func (h *pprofHandler) ServeHTTP(c *gin.Context) {

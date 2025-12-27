@@ -1,12 +1,11 @@
 package service
 
 import (
+	"compress/gzip"
 	"log/slog"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/z876730060/auth/internal/service/common"
-	"github.com/z876730060/auth/pkg/feign"
 )
 
 type HealthService struct {
@@ -20,18 +19,12 @@ func NewHealthService(log *slog.Logger) *HealthService {
 }
 
 func (h *HealthService) Health(c *gin.Context) {
-	news, err := feign.DataServiceInstance.GetNew(1)
-	if err != nil {
-		h.log.Error("get news error", "err", err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-	h.log.Info("get news", "news", news)
-	c.JSON(http.StatusOK, gin.H{
-		"message": "ok",
-	})
+	c.Header("Connection", "keep-alive")
+	c.Header("Content-Encoding", "gzip")
+	gzipWriter := gzip.NewWriter(c.Writer)
+	defer gzipWriter.Close()
+	gzipWriter.Write([]byte("ok"))
+	gzipWriter.Flush()
 }
 
 func (h *HealthService) Register(e *gin.Engine) {

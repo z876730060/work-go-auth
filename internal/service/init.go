@@ -14,6 +14,7 @@ import (
 	"github.com/z876730060/auth/internal/service/common"
 	"github.com/z876730060/auth/internal/service/login"
 	"github.com/z876730060/auth/internal/service/menu"
+	"github.com/z876730060/auth/internal/service/middleware"
 	"github.com/z876730060/auth/internal/service/role"
 	"github.com/z876730060/auth/internal/service/user"
 	"gorm.io/driver/mysql"
@@ -63,11 +64,11 @@ func InitRoute(e *gin.Engine) {
 	l := slog.Default().With("service", "auth")
 	baseHandler := common.NewBaseHandler(l, db, redisClient, info)
 
-	e.Use(BaseMiddleware(l), requestid.New())
+	e.Use(middleware.BaseMiddleware(l), requestid.New())
 	NewHealthService(l).Register(e)
 	NewPprofHandler(l).Register(e)
 	login.NewHandler(baseHandler).Register(e)
-	e.Use(AuthMiddleware(l))
+	e.Use(middleware.AuthMiddleware(l, db))
 
 	role.NewHandler(baseHandler).Register(e)
 	user.NewHandler(baseHandler).Register(e)

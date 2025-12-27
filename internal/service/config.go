@@ -10,11 +10,12 @@ type Config struct {
 
 // Application 应用配置
 type Application struct {
-	Name    string `json:"name"`
-	IP      string `json:"ip"`
-	Port    int    `json:"port"`
-	Env     string `json:"env"`
-	Version string `json:"version"`
+	Name    string         `json:"name"`
+	IP      string         `json:"ip"`
+	Port    int            `json:"port"`
+	Env     string         `json:"env"`
+	Version string         `json:"version"`
+	Debug   PprofDebugAuth `json:"debug"`
 }
 
 // Cloud 微服务配置
@@ -59,4 +60,10 @@ type Redis struct {
 	Ip     string `json:"ip"`
 	Port   uint64 `json:"port"`
 	DB     int    `json:"db"`
+}
+
+type PprofDebugAuth struct {
+	Enable   bool   `json:"enable"`
+	Username string `json:"username"`
+	Password string `json:"password"`
 }

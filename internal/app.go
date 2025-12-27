@@ -29,13 +29,18 @@ func (a *App) Run() {
 	e.Use(gin.Recovery())
 	service.InitRoute(e)
 	addr := getAddress()
-	go e.Run(addr)
+	exit := make(chan os.Signal, 1)
+	go func() {
+		if err := e.Run(addr); err != nil {
+			slog.Error("gin run error", "err", err)
+			exit <- os.Interrupt
+		}
+	}()
 
 	cloud.RegisterManagerInstance.Register(service.Cfg)
 	defer cloud.RegisterManagerInstance.Unregister(service.Cfg)
 
 	slog.Info("app start success", "listen on", addr)
-	exit := make(chan os.Signal, 1)
 	signal.Notify(exit, os.Interrupt)
 	<-exit
 	slog.Info("receive interrupt signal, exit")
