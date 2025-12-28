@@ -37,6 +37,7 @@ func (h *Handler) Register(e *gin.Engine) {
 	e.POST("/user/role", h.BindRole)
 	e.GET("/user/role/:id", h.GetRole)
 	e.GET("/user/me", h.Me)
+	e.POST("/user/upload/pic", h.UploadPic)
 }
 
 func (h *Handler) List(c *gin.Context) {
@@ -255,4 +256,13 @@ func (h *Handler) GetRole(c *gin.Context) {
 
 func (h *Handler) Me(c *gin.Context) {
 
+}
+
+func (h *Handler) UploadPic(c *gin.Context) {
+	file, err := c.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, common.RespErr("invalid file", h.info))
+		return
+	}
+	h.l.Info("头像上传", "file", file.Filename, "size", fmt.Sprintf("%d", file.Size))
 }

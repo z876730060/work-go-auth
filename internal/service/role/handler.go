@@ -58,6 +58,8 @@ func (h *Handler) List(c *gin.Context) {
 func (h *Handler) Add(c *gin.Context) {
 	type rBody struct {
 		Name           string   `json:"name"`
+		Key            string   `json:"key"`
+		Comment        string   `json:"comment"`
 		MenuPermission []string `json:"menuPermission"`
 	}
 	var req rBody
@@ -68,7 +70,9 @@ func (h *Handler) Add(c *gin.Context) {
 
 	// 首先创建角色
 	role := Role{
-		Name: req.Name,
+		Name:    req.Name,
+		Key:     req.Key,
+		Comment: req.Comment,
 	}
 	if err := h.db.Create(&role).Error; err != nil {
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
@@ -143,6 +147,7 @@ func (h *Handler) Update(c *gin.Context) {
 	type rBody struct {
 		ID             string   `json:"ID"`
 		Name           string   `json:"name"`
+		Key            string   `json:"key"`
 		Comment        string   `json:"comment"`
 		MenuPermission []string `json:"menuPermission"`
 	}
@@ -164,6 +169,7 @@ func (h *Handler) Update(c *gin.Context) {
 			ID: uid,
 		},
 		Name:    req.Name,
+		Key:     req.Key,
 		Comment: req.Comment,
 	}
 	if err := h.db.Save(&role).Error; err != nil {
