@@ -12,6 +12,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/spf13/viper"
 	"github.com/z876730060/auth/internal/service/common"
+	"github.com/z876730060/auth/internal/service/dictionary"
 	"github.com/z876730060/auth/internal/service/login"
 	"github.com/z876730060/auth/internal/service/menu"
 	"github.com/z876730060/auth/internal/service/middleware"
@@ -19,6 +20,7 @@ import (
 	"github.com/z876730060/auth/internal/service/user"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -50,6 +52,7 @@ func InitDB() {
 	menu.InitMenuTable(db)
 	role.InitRoleTable(db)
 	user.InitUserTable(db)
+	dictionary.InitDictionaryTable(db)
 	slog.Info("db connect success")
 }
 
@@ -74,6 +77,7 @@ func InitRoute(e *gin.Engine) {
 	user.NewHandler(baseHandler).Register(e)
 	menu.NewHandler(baseHandler).Register(e)
 	menu.NewMicroAppHandler(baseHandler).Register(e)
+	dictionary.NewHandler(baseHandler).Register(e)
 	slog.Info("route register success")
 }
 
@@ -118,6 +122,8 @@ func getDialector() gorm.Dialector {
 	case "postgres":
 		return postgres.Open(fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 			Cfg.DB.Ip, Cfg.DB.Port, Cfg.DB.Username, Cfg.DB.Password, Cfg.DB.DBName))
+	case "sqlite":
+		return sqlite.Open(Cfg.DB.DBName)
 	default:
 		panic("db type not support")
 	}

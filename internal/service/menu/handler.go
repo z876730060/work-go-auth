@@ -173,20 +173,10 @@ func (h *Handler) List(c *gin.Context) {
 }
 
 func (h *Handler) Add(c *gin.Context) {
-	type rbody struct {
-		menu.Menu
-		menu.Route
-	}
-
-	var body rbody
+	var body MenuTable
 	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, common.RespErr(err.Error(), h.info))
 		return
-	}
-
-	menuTable := MenuTable{
-		Menu:  body.Menu,
-		Route: body.Route,
 	}
 
 	// 检查是否存在相同的key
@@ -204,14 +194,14 @@ func (h *Handler) Add(c *gin.Context) {
 		return
 	}
 
-	if err := h.db.Create(&menuTable).Error; err != nil {
+	if err := h.db.Create(&body).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, common.RespErr(err.Error(), h.info))
 		return
 	}
 
-	h.l.Info("Add menu", "id", menuTable.ID)
+	h.l.Info("Add menu", "id", body.ID)
 
-	c.JSON(http.StatusOK, common.RespOk("add menu success", menuTable.Menu, h.info))
+	c.JSON(http.StatusOK, common.RespOk("add menu success", body.Menu, h.info))
 }
 
 func (h *Handler) Del(c *gin.Context) {

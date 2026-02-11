@@ -29,8 +29,8 @@ func (h *pprofHandler) Register(e *gin.Engine) {
 func (h *pprofHandler) ServeHTTP(c *gin.Context) {
 	urlPath := c.Param("urlPath")
 	switch {
-	case strings.HasPrefix(urlPath, "/cmdline"):
-		pprof.Cmdline(c.Writer, c.Request)
+	// case strings.HasPrefix(urlPath, "/cmdline"):
+		// pprof.Cmdline(c.Writer, c.Request)
 	case strings.HasPrefix(urlPath, "/profile"):
 		pprof.Profile(c.Writer, c.Request)
 	case strings.HasPrefix(urlPath, "/symbol"):

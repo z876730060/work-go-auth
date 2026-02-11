@@ -20,7 +20,7 @@ func AuthMiddleware(l *slog.Logger, db *gorm.DB) gin.HandlerFunc {
 		if header == "" {
 			c.AbortWithStatus(http.StatusUnauthorized)
 		}
-		l.Info("Authorization", "header", header)
+		l.Debug("Authorization", "header", header)
 
 		token := strings.TrimPrefix(header, "Bearer ")
 		claims, err := common.ValidateJavaJWT(token)
@@ -28,7 +28,7 @@ func AuthMiddleware(l *slog.Logger, db *gorm.DB) gin.HandlerFunc {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
-		l.Info("Authorization", "claims", claims)
+		l.Debug("Authorization", "claims", claims)
 
 		c.Set("userId", claims.UserID)
 		c.Set("role", claims.RoleIds)
@@ -54,7 +54,7 @@ func BaseMiddleware(l *slog.Logger) gin.HandlerFunc {
 		}()
 		start := time.Now()
 		defer func() {
-			l.Info("request duration", "path", c.Request.URL.Path, "method", c.Request.Method, "status", c.Writer.Status(), "duration", time.Since(start))
+			l.Info("request duration", "remote", c.Request.RemoteAddr, "path", c.Request.URL.Path, "method", c.Request.Method, "status", c.Writer.Status(), "duration", time.Since(start))
 		}()
 		total.Add(1)
 		count.Add(1)

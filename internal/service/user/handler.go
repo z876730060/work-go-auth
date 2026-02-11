@@ -259,10 +259,15 @@ func (h *Handler) Me(c *gin.Context) {
 }
 
 func (h *Handler) UploadPic(c *gin.Context) {
-	file, err := c.FormFile("file")
+	type picReq struct {
+		Data string
+	}
+	var req picReq
+	err := c.ShouldBindJSON(&req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, common.RespErr("invalid file", h.info))
+		c.JSON(http.StatusBadRequest, common.RespErr("invalid request body", h.info))
 		return
 	}
-	h.l.Info("头像上传", "file", file.Filename, "size", fmt.Sprintf("%d", file.Size))
+	h.l.Info("上传头像", "data.len", len(req.Data))
+	c.JSON(http.StatusOK, common.RespOk("upload success", nil, h.info))
 }
