@@ -12,7 +12,7 @@ var (
 
 func Register(cfg service.Config) {
 	// 注册定时任务
-	if !cfg.CronJob.Enable {
+	if cfg.CronJob == nil || !cfg.CronJob.Enable {
 		return
 	}
 	executor = xxljob.NewExecutor(
