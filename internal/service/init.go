@@ -12,7 +12,6 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/spf13/viper"
 	"github.com/z876730060/auth/internal/service/common"
-	"github.com/z876730060/auth/internal/service/dictionary"
 	"github.com/z876730060/auth/internal/service/login"
 	"github.com/z876730060/auth/internal/service/menu"
 	"github.com/z876730060/auth/internal/service/middleware"
@@ -52,7 +51,6 @@ func InitDB() {
 	menu.InitMenuTable(db)
 	role.InitRoleTable(db)
 	user.InitUserTable(db)
-	dictionary.InitDictionaryTable(db)
 	slog.Info("db connect success")
 }
 
@@ -77,7 +75,6 @@ func InitRoute(e *gin.Engine) {
 	user.NewHandler(baseHandler).Register(e)
 	menu.NewHandler(baseHandler).Register(e)
 	menu.NewMicroAppHandler(baseHandler).Register(e)
-	dictionary.NewHandler(baseHandler).Register(e)
 	slog.Info("route register success")
 }
 

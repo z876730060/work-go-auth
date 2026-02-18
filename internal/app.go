@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/z876730060/auth/internal/cloud"
+	"github.com/z876730060/auth/internal/job"
 	"github.com/z876730060/auth/internal/service"
 	"github.com/z876730060/auth/internal/utils"
 )
@@ -39,6 +40,8 @@ func (a *App) Run() {
 
 	cloud.RegisterManagerInstance.Register(service.Cfg)
 	defer cloud.RegisterManagerInstance.Unregister(service.Cfg)
+	job.Register(service.Cfg)
+	defer job.Unregister()
 
 	slog.Info("app start success", "listen on", addr)
 	signal.Notify(exit, os.Interrupt)

@@ -10,13 +10,12 @@ application:
     password: admin
 cloud:
   nacos:
-    enable: true
+    enable: false
     ip: 127.0.0.1
     port: 8848
     namespace: 7cd8da2f-1861-4c25-8afe-789523b00e14
     username: nacos
     password: nacos
-    group: work
   zookeeper:
     enable: false
     ip: 127.0.0.1

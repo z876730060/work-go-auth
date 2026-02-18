@@ -2,26 +2,28 @@ package service
 
 // Config 配置
 type Config struct {
-	Application Application `json:"application"`
-	Cloud       Cloud       `json:"cloud"`
-	Redis       Redis       `json:"redis"`
-	DB          DB          `json:"db"`
+	Application *Application                 `json:"application"`
+	Cloud       *Cloud                       `json:"cloud"`
+	Redis       *Redis                       `json:"redis"`
+	DB          *DB                          `json:"db"`
+	Dict        map[string]map[string]string `json:"dict"`
+	CronJob     *CronJob                     `json:"cronJob"`
 }
 
 // Application 应用配置
 type Application struct {
-	Name    string         `json:"name"`
-	IP      string         `json:"ip"`
-	Port    int            `json:"port"`
-	Env     string         `json:"env"`
-	Version string         `json:"version"`
-	Debug   PprofDebugAuth `json:"debug"`
+	Name    string          `json:"name"`
+	IP      string          `json:"ip"`
+	Port    int             `json:"port"`
+	Env     string          `json:"env"`
+	Version string          `json:"version"`
+	Debug   *PprofDebugAuth `json:"debug"`
 }
 
 // Cloud 微服务配置
 type Cloud struct {
-	Nacos     Nacos     `json:"nacos"`
-	Zookeeper Zookeeper `json:"zookeeper"`
+	Nacos     *Nacos     `json:"nacos"`
+	Zookeeper *Zookeeper `json:"zookeeper"`
 }
 
 // DB 数据库配置
@@ -60,6 +62,15 @@ type Redis struct {
 	Ip     string `json:"ip"`
 	Port   uint64 `json:"port"`
 	DB     int    `json:"db"`
+}
+
+// CronJob 定时任务配置
+type CronJob struct {
+	Enable  bool   `json:"enable"`
+	Port    int    `json:"port"`
+	AppName string `json:"appName"`
+	Host    string `json:"host"`
+	LogDir  string `json:"logDir"`
 }
 
 type PprofDebugAuth struct {
